@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -38,7 +38,6 @@
             text-align: center;
             font-size: 18px;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         .payment-section {
             background: #f8f9fa;
@@ -49,7 +48,6 @@
         .payment-section h3 {
             color: #333;
             margin-bottom: 15px;
-            font-size: 16px;
         }
         .payment-codes {
             display: flex;
@@ -68,22 +66,14 @@
             width: 100%;
             max-width: 240px;
             height: auto;
-            aspect-ratio: 1;
             border-radius: 12px;
             border: 3px solid #e0e0e0;
-            transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
-            object-fit: cover;
-        }
-        .payment-code img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         .payment-code p {
             margin-top: 12px;
             font-weight: bold;
             color: #555;
-            font-size: 16px;
         }
         .form-group {
             margin-bottom: 25px;
@@ -93,7 +83,6 @@
             margin-bottom: 10px;
             color: #333;
             font-weight: bold;
-            font-size: 15px;
         }
         input, select, textarea {
             width: 100%;
@@ -101,7 +90,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -113,12 +101,7 @@
             padding: 40px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
             background: white;
-        }
-        .file-upload:hover {
-            background: #f0f0ff;
-            border-color: #764ba2;
         }
         .file-upload input {
             display: none;
@@ -126,10 +109,6 @@
         .file-upload-icon {
             font-size: 48px;
             margin-bottom: 15px;
-        }
-        .file-upload p {
-            margin: 8px 0;
-            color: #666;
         }
         .preview-image {
             max-width: 100%;
@@ -148,15 +127,9 @@
             font-size: 20px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
-        }
-        .submit-btn:active {
-            transform: translateY(0);
+            opacity: 0.9;
         }
         .note {
             background: #fff3cd;
@@ -168,11 +141,6 @@
             line-height: 1.7;
             border-left: 4px solid #ffc107;
         }
-        .note strong {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
         .success-message {
             display: none;
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -181,63 +149,43 @@
             border-radius: 15px;
             text-align: center;
             margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         .success-message h3 {
             margin-bottom: 15px;
             font-size: 24px;
-        }
-        .success-message p {
-            margin: 8px 0;
-            font-size: 16px;
-        }
-        .success-message strong {
-            color: #ffc107;
         }
         .loading {
             display: none;
             text-align: center;
             padding: 20px;
         }
-        .loading:after {
-            content: '...';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>💳 支付订单</h2>
-
-        <div class="product-info" id="productInfo">
-            <!-- 动态填充 -->
-        </div>
+        <div class="product-info" id="productInfo">加载中...</div>
 
         <div class="payment-section">
             <h3>📱 扫码支付</h3>
             <div class="payment-codes">
                 <div class="payment-code">
-                    <img src="assets/payment-codes/code1.jpg" alt="微信支付" onclick="this.requestFullscreen()">
+                    <img src="assets/payment-codes/code1.jpg" alt="微信支付">
                     <p>微信支付</p>
                 </div>
                 <div class="payment-code">
-                    <img src="assets/payment-codes/code2.jpg" alt="支付宝" onclick="this.requestFullscreen()">
+                    <img src="assets/payment-codes/code2.jpg" alt="支付宝">
                     <p>支付宝</p>
                 </div>
             </div>
         </div>
 
         <div class="note">
-            <strong>⚠️ 支付说明</strong>
+            <strong>⚠️ 支付说明</strong><br>
             1. 扫码支付对应金额<br>
-            2. <strong style="color: #d9534f; font-size: 17px;">上传支付截图（必须）</strong><br>
+            2. <strong style="color: #d9534f;">上传支付截图（必须）</strong><br>
             3. 填写邮箱地址<br>
-            4. 提交后等待审核（通常1小时内）
+            4. 提交后等待审核
         </div>
 
         <form id="orderForm" style="margin-top: 30px;">
@@ -252,7 +200,7 @@
 
             <div class="form-group">
                 <label>支付截图：<span style="color: #d9534f;">*</span></label>
-                <div class="file-upload" id="fileUpload">
+                <div class="file-upload" id="fileUpload" onclick="document.getElementById('paymentScreenshot').click()">
                     <input type="file" id="paymentScreenshot" accept="image/*" required>
                     <div class="file-upload-icon">📷</div>
                     <p style="font-size: 16px; font-weight: bold; color: #667eea;">点击上传支付截图</p>
@@ -283,7 +231,7 @@
         </form>
 
         <div class="loading" id="loading">
-            <p style="font-size: 18px; color: #667eea;">正在提交订单</p>
+            <p style="font-size: 18px; color: #667eea;">正在提交订单...</p>
         </div>
 
         <div class="success-message" id="successMessage">
@@ -291,23 +239,54 @@
             <p>订单号：<strong id="orderId"></strong></p>
             <p>我们会在<strong>1小时内</strong>审核</p>
             <p>并通过邮件发送下载链接</p>
-            <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;">请保存订单号，方便查询</p>
         </div>
     </div>
 
-    <script src="js/api.js"></script>
     <script>
+        // 产品配置
         const products = {
             'chatgpt': { name: 'ChatGPT Prompt合集', price: '29.9' },
             'midjourney': { name: 'Midjourney Prompt合集', price: '39.9' },
             'combo': { name: '超级组合套餐', price: '59.9' }
         };
 
-        // 从URL获取商品
+        const ORDERS_KEY = 'virtual_resource_shop_orders';
+
+        // 创建订单函数
+        function createOrder(orderData) {
+            try {
+                const orderId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+                const order = {
+                    id: orderId,
+                    product: orderData.product,
+                    email: orderData.email,
+                    payment_method: orderData.paymentMethod,
+                    price: orderData.price,
+                    payment_screenshot: orderData.paymentScreenshot,
+                    notes: orderData.notes || '',
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                };
+
+                // 保存到localStorage
+                let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+                orders.push(order);
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+
+                console.log('订单创建成功:', order);
+                return { success: true, order: order };
+            } catch (error) {
+                console.error('创建订单失败:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 从URL获取商品参数
         const urlParams = new URLSearchParams(window.location.search);
-        const product = urlParams.get('product');
-        if (product && products[product]) {
-            document.getElementById('productSelect').value = product;
+        const productKey = urlParams.get('product');
+        if (productKey && products[productKey]) {
+            document.getElementById('productSelect').value = productKey;
         }
         updateProductInfo();
 
@@ -329,15 +308,15 @@
                     const preview = document.getElementById('previewImage');
                     preview.src = e.target.result;
                     preview.style.display = 'block';
-                    document.getElementById('fileUpload').querySelector('.file-upload-icon').textContent = '✅';
-                    document.getElementById('fileUpload').querySelector('p').textContent = '已选择文件';
-                }
+                    document.querySelector('.file-upload-icon').textContent = '✅';
+                    document.querySelector('.file-upload p').textContent = '已选择文件';
+                };
                 reader.readAsDataURL(file);
             }
         });
 
         // 表单提交
-        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             const productKey = document.getElementById('productSelect').value;
@@ -359,31 +338,31 @@
             const file = screenshotInput.files[0];
             const reader = new FileReader();
 
-            reader.onload = async function(e) {
-                try {
-                    const result = await createOrder({
-                        product: product.name,
-                        email: email,
-                        paymentMethod: paymentMethod,
-                        price: product.price,
-                        paymentScreenshot: e.target.result,
-                        notes: notes
-                    });
+            reader.onload = function(e) {
+                const result = createOrder({
+                    product: product.name,
+                    email: email,
+                    paymentMethod: paymentMethod,
+                    price: product.price,
+                    paymentScreenshot: e.target.result,
+                    notes: notes
+                });
 
-                    if (result.success) {
-                        document.getElementById('loading').style.display = 'none';
-                        document.getElementById('successMessage').style.display = 'block';
-                        document.getElementById('orderId').textContent = result.order.id;
-                    } else {
-                        alert('提交失败：' + (result.error || '未知错误'));
-                        document.getElementById('orderForm').style.display = 'block';
-                        document.getElementById('loading').style.display = 'none';
-                    }
-                } catch (error) {
-                    alert('提交失败，请检查网络连接');
+                if (result.success) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('orderId').textContent = result.order.id;
+                } else {
+                    alert('提交失败：' + (result.error || '未知错误'));
                     document.getElementById('orderForm').style.display = 'block';
                     document.getElementById('loading').style.display = 'none';
                 }
+            };
+
+            reader.onerror = function() {
+                alert('文件读取失败，请重试');
+                document.getElementById('orderForm').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
             };
 
             reader.readAsDataURL(file);
