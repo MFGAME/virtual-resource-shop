@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI资源商店 - 支付</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+        .product-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .payment-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        .payment-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .payment-codes {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .payment-code {
+            text-align: center;
+        }
+        .payment-code img {
+            width: 220px;
+            height: 220px;
+            border-radius: 12px;
+            border: 3px solid #e0e0e0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .payment-code img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .payment-code p {
+            margin-top: 12px;
+            font-weight: bold;
+            color: #555;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .file-upload {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        .file-upload:hover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+        .file-upload input {
+            display: none;
+        }
+        .file-upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .file-upload p {
+            margin: 8px 0;
+            color: #666;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: 2px solid #667eea;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        .note {
+            background: #fff3cd;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 25px;
+            color: #856404;
+            font-size: 15px;
+            line-height: 1.7;
+            border-left: 4px solid #ffc107;
+        }
+        .note strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .success-message {
+            display: none;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .success-message h3 {
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .success-message p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        .success-message strong {
+            color: #ffc107;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading:after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>💳 支付订单</h2>
+
+        <div class="product-info" id="productInfo">
+            <!-- 动态填充 -->
+        </div>
+
+        <div class="payment-section">
+            <h3>📱 扫码支付</h3>
+            <div class="payment-codes">
+                <div class="payment-code">
+                    <img src="assets/payment-codes/code1.jpg" alt="微信支付" onclick="this.requestFullscreen()">
+                    <p>微信支付</p>
+                </div>
+                <div class="payment-code">
+                    <img src="assets/payment-codes/code2.jpg" alt="支付宝" onclick="this.requestFullscreen()">
+                    <p>支付宝</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>⚠️ 支付说明</strong>
+            1. 扫码支付对应金额<br>
+            2. <strong style="color: #d9534f; font-size: 17px;">上传支付截图（必须）</strong><br>
+            3. 填写邮箱地址<br>
+            4. 提交后等待审核（通常1小时内）
+        </div>
+
+        <form id="orderForm" style="margin-top: 30px;">
+            <div class="form-group">
+                <label>选择商品：</label>
+                <select id="productSelect" required>
+                    <option value="chatgpt">ChatGPT Prompt合集 - ¥29.9</option>
+                    <option value="midjourney">Midjourney Prompt合集 - ¥39.9</option>
+                    <option value="combo">超级组合套餐 - ¥59.9</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>支付截图：<span style="color: #d9534f;">*</span></label>
+                <div class="file-upload" id="fileUpload">
+                    <input type="file" id="paymentScreenshot" accept="image/*" required>
+                    <div class="file-upload-icon">📷</div>
+                    <p style="font-size: 16px; font-weight: bold; color: #667eea;">点击上传支付截图</p>
+                    <p style="font-size: 13px; color: #999;">支持 JPG, PNG 格式</p>
+                    <img id="previewImage" class="preview-image" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>邮箱地址：</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>支付方式：</label>
+                <select id="paymentMethod" required>
+                    <option value="wechat">微信支付</option>
+                    <option value="alipay">支付宝</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>备注（可选）：</label>
+                <textarea id="notes" rows="2" placeholder="有什么需要说明的..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">✓ 提交订单</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <p style="font-size: 18px; color: #667eea;">正在提交订单</p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <h3>✅ 订单提交成功！</h3>
+            <p>订单号：<strong id="orderId"></strong></p>
+            <p>我们会在<strong>1小时内</strong>审核</p>
+            <p>并通过邮件发送下载链接</p>
+            <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;">请保存订单号，方便查询</p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const products = {
+            'chatgpt': { name: 'ChatGPT Prompt合集', price: '29.9' },
+            'midjourney': { name: 'Midjourney Prompt合集', price: '39.9' },
+            'combo': { name: '超级组合套餐', price: '59.9' }
+        };
+
+        // 从URL获取商品
+        const urlParams = new URLSearchParams(window.location.search);
+        const product = urlParams.get('product');
+        if (product && products[product]) {
+            document.getElementById('productSelect').value = product;
+        }
+        updateProductInfo();
+
+        document.getElementById('productSelect').addEventListener('change', updateProductInfo);
+
+        function updateProductInfo() {
+            const select = document.getElementById('productSelect');
+            const selectedProduct = products[select.value];
+            document.getElementById('productInfo').textContent =
+                `${selectedProduct.name} - ¥${selectedProduct.price}`;
+        }
+
+        // 文件上传预览
+        document.getElementById('paymentScreenshot').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('previewImage');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    document.getElementById('fileUpload').querySelector('.file-upload-icon').textContent = '✅';
+                    document.getElementById('fileUpload').querySelector('p').textContent = '已选择文件';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 表单提交
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const productKey = document.getElementById('productSelect').value;
+            const product = products[productKey];
+            const email = document.getElementById('email').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const notes = document.getElementById('notes').value;
+            const screenshotInput = document.getElementById('paymentScreenshot');
+
+            if (!screenshotInput.files[0]) {
+                alert('请上传支付截图');
+                return;
+            }
+
+            // 显示加载
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            const file = screenshotInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                try {
+                    const result = await createOrder({
+                        product: product.name,
+                        email: email,
+                        paymentMethod: paymentMethod,
+                        price: product.price,
+                        paymentScreenshot: e.target.result,
+                        notes: notes
+                    });
+
+                    if (result.success) {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('successMessage').style.display = 'block';
+                        document.getElementById('orderId').textContent = result.order.id;
+                    } else {
+                        alert('提交失败：' + (result.error || '未知错误'));
+                        document.getElementById('orderForm').style.display = 'block';
+                        document.getElementById('loading').style.display = 'none';
+                    }
+                } catch (error) {
+                    alert('提交失败，请检查网络连接');
+                    document.getElementById('orderForm').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

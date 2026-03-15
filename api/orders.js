@@ -4,8 +4,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Supabase配置（完全免费）
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_ANON_KEY
+const supabaseUrl = 'https://dcnrrxezmegbkmajbxhl.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY || 'sb_publishable_TjJVZkPPCg3QQmiS99neeg_L4wLsQy2'
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 export default async function handler(req, res) {
