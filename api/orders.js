@@ -1,14 +1,14 @@
 // Vercel Serverless Function - 订单API
 // 使用Supabase作为真正的数据库
 
-import { createClient } from '@supabase/supabase-js'
+const { createClient } = require('@supabase/supabase-js')
 
 // Supabase配置（完全免费）
 const supabaseUrl = 'https://dcnrrxezmegbkmajbxhl.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY || 'sb_publishable_TjJVZkPPCg3QQmiS99neeg_L4wLsQy2'
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1)
+        .range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1)
 
       if (status) {
         query = query.eq('status', status)
@@ -84,12 +84,6 @@ export default async function handler(req, res) {
         .select()
 
       if (error) throw error
-
-      // 如果批准订单，发送邮件（可选）
-      if (status === 'approved' && data[0]) {
-        // TODO: 集成邮件服务
-        // await sendEmail(data[0].email, data[0].product)
-      }
 
       return res.json({ success: true, order: data[0] })
     }
