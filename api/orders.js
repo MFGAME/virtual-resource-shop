@@ -1,116 +1,144 @@
-// Vercel Serverless Function - 订单管理API
-// 使用文件系统存储订单（简单的JSON文件）
+// Vercel Serverless Function - 订单API
+// 使用Supabase作为真正的数据库
 
-const fs = require('fs');
-const path = require('path');
+import { createClient } from '@supabase/supabase-js'
 
-const ORDERS_FILE = path.join('/tmp', 'orders.json');
+// Supabase配置（完全免费）
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-// 初始化订单文件
-function initOrdersFile() {
-  if (!fs.existsSync(ORDERS_FILE)) {
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify([]));
-  }
-}
-
-// 读取所有订单
-function readOrders() {
-  initOrdersFile();
-  const data = fs.readFileSync(ORDERS_FILE, 'utf8');
-  return JSON.parse(data);
-}
-
-// 保存订单
-function saveOrders(orders) {
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
-}
-
-module.exports = async (req, res) => {
-  // 设置CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req, res) {
+  // CORS
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end()
   }
 
-  const { method } = req;
-  const { action } = req.query;
+  const { action } = req.query
 
   try {
     // 创建订单
-    if (method === 'POST' && action === 'create') {
-      const { product, email, paymentMethod, price } = req.body;
-      
-      const order = {
-        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-        product,
-        email,
-        paymentMethod,
-        price,
-        status: 'pending', // pending, paid, completed
-        createdAt: new Date().toISOString(),
-        paidAt: null,
-        completedAt: null
-      };
+    if (req.method === 'POST' && action === 'create') {
+      const { product, email, paymentMethod, price, paymentScreenshot, notes } = req.body
 
-      const orders = readOrders();
-      orders.push(order);
-      saveOrders(orders);
+      const orderId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
 
-      res.json({ success: true, order });
-      return;
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([{
+          id: orderId,
+          product,
+          email,
+          payment_method: paymentMethod,
+          price,
+          payment_screenshot: paymentScreenshot,
+          notes,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+
+      if (error) throw error
+
+      return res.json({ success: true, order: data[0] })
     }
 
-    // 获取所有订单
-    if (method === 'GET' && action === 'list') {
-      const orders = readOrders();
-      res.json({ success: true, orders });
-      return;
+    // 获取订单列表
+    if (req.method === 'GET' && action === 'list') {
+      const { status, limit = 100, offset = 0 } = req.query
+
+      let query = supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1)
+
+      if (status) {
+        query = query.eq('status', status)
+      }
+
+      const { data, error } = await query
+
+      if (error) throw error
+
+      return res.json({ success: true, orders: data })
     }
 
     // 更新订单状态
-    if (method === 'PUT' && action === 'update') {
-      const { orderId, status } = req.body;
-      
-      const orders = readOrders();
-      const index = orders.findIndex(o => o.id === orderId);
-      
-      if (index === -1) {
-        res.status(404).json({ success: false, error: '订单不存在' });
-        return;
+    if (req.method === 'PUT' && action === 'update') {
+      const { orderId, status } = req.body
+
+      const updateData = {
+        status,
+        [`${status}_at`]: new Date().toISOString()
       }
 
-      orders[index].status = status;
-      orders[index][`${status}At`] = new Date().toISOString();
-      saveOrders(orders);
+      const { data, error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId)
+        .select()
 
-      res.json({ success: true, order: orders[index] });
-      return;
+      if (error) throw error
+
+      // 如果批准订单，发送邮件（可选）
+      if (status === 'approved' && data[0]) {
+        // TODO: 集成邮件服务
+        // await sendEmail(data[0].email, data[0].product)
+      }
+
+      return res.json({ success: true, order: data[0] })
     }
 
     // 获取统计数据
-    if (method === 'GET' && action === 'stats') {
-      const orders = readOrders();
-      const stats = {
-        total: orders.length,
-        pending: orders.filter(o => o.status === 'pending').length,
-        paid: orders.filter(o => o.status === 'paid').length,
-        completed: orders.filter(o => o.status === 'completed').length,
-        totalRevenue: orders
-          .filter(o => o.status === 'completed')
-          .reduce((sum, o) => sum + parseFloat(o.price), 0)
-      };
-      res.json({ success: true, stats });
-      return;
+    if (req.method === 'GET' && action === 'stats') {
+      const { count: total } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+
+      const { count: pending } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending')
+
+      const { count: approved } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved')
+
+      const { count: rejected } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'rejected')
+
+      // 计算总收入
+      const { data: approvedOrders } = await supabase
+        .from('orders')
+        .select('price')
+        .eq('status', 'approved')
+
+      const totalRevenue = approvedOrders?.reduce((sum, o) => sum + parseFloat(o.price), 0) || 0
+
+      return res.json({
+        success: true,
+        stats: {
+          total,
+          pending,
+          approved,
+          rejected,
+          totalRevenue
+        }
+      })
     }
 
-    res.status(400).json({ success: false, error: '无效的操作' });
+    return res.status(400).json({ success: false, error: 'Invalid action' })
 
   } catch (error) {
-    console.error('API Error:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('API Error:', error)
+    return res.status(500).json({ success: false, error: error.message })
   }
-};
+}
