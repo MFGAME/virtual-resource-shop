@@ -330,10 +330,8 @@
         };
 
         function buyProduct(productId) {
-            const product = products[productId];
-            document.getElementById('productInfo').textContent = `${product.name} - ¥${product.price}`;
-            document.getElementById('paymentNote').textContent = product.note;
-            document.getElementById('paymentModal').style.display = 'flex';
+            // 跳转到支付页面
+            window.location.href = `../payment.html?product=${productId}`;
         }
 
         function closePaymentModal() {
