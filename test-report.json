@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-03-15T06:55:44.787Z",
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "successRate": "100.0%"
+  },
+  "results": [
+    {
+      "test": "创建订单",
+      "status": "通过",
+      "orderId": "mmrehm6297xq5"
+    },
+    {
+      "test": "读取订单",
+      "status": "通过",
+      "count": 1
+    },
+    {
+      "test": "更新订单状态",
+      "status": "通过"
+    },
+    {
+      "test": "统计数据",
+      "status": "通过",
+      "stats": {
+        "total": 1,
+        "pending": 0,
+        "approved": 1,
+        "rejected": 0,
+        "totalRevenue": 29.9
+      }
+    },
+    {
+      "test": "批量创建订单",
+      "status": "通过",
+      "count": 3
+    },
+    {
+      "test": "过滤订单",
+      "status": "通过"
+    },
+    {
+      "test": "数据持久化",
+      "status": "通过",
+      "storedCount": 4
+    },
+    {
+      "test": "CSV导出格式",
+      "status": "通过"
+    }
+  ]
+}
