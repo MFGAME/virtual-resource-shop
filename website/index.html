@@ -330,8 +330,8 @@
         };
 
         function buyProduct(productId) {
-            // 跳转到支付页面
-            window.location.href = `../payment.html?product=${productId}`;
+            // 跳转到新的支付页面（包含支付验证）
+            window.location.href = `../payment-new.html?product=${productId}`;
         }
 
         function closePaymentModal() {
