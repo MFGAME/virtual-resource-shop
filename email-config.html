@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailJS配置向导</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .step h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 EmailJS自动邮件配置</h1>
+        <p style="margin-bottom: 20px; color: #666; text-align: center;">
+            只需1分钟，完成后系统将自动发送邮件！ 🎉
+        </p>
+
+        <div class="note">
+            <strong>⏱️ 錙费、免费！</strong><br>
+            EmailJS免费额度：每月200封邮件<br>
+            宂多订单？完全够用！
+        </div>
+
+        <div class="step">
+            <h2>第1步：注册EmailJS账号</h2>
+            <p>访问 <a href="https://www.emailjs.com/" target="_blank" style="color: #667eea; font-weight: bold;">EmailJS.com</a></p>
+            <p>点击 "Sign Up Free" 注册（可以用Google账号快速登录）</p>
+        </div>
+
+        <div class="step">
+            <h2>第2步: 获取3个参数</h2>
+            
+            <div style="margin-top: 20px;">
+                <label>① Public Key（用户ID）</label>
+                <input type="text" id="publicKey" placeholder="例如：user_abc123xyz">
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">
+                    路径： Account → API Keys → Public Key
+                </p>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label>② Service ID（邮件服务ID）</label>
+                <input type="text" id="serviceId" placeholder="例如：service_gmail123">
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">
+                    路径: Email Services → 点击你的邮箱服务 → Service ID
+                </p>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label>③ Template ID（邮件模板ID）</label>
+                <input type="text" id="templateId" placeholder="例如：template_order123">
+                <p style="font-size: 12px; color: #999; margin-top: 5px;">
+                    路径: Email Templates → 点击模板 → Template ID
+                </p>
+            </div>
+
+            <button onclick="testEmail()">📧 测试邮件发送</button>
+
+            <div id="result" class="success">
+                ✅ 配置成功！请复制以下信息发送给AI助手：
+            </div>
+
+            <div style="margin-top: 20px; background: #f0f0ff; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+                <p id="configData" style="font-family: monospace; font-size: 12px; white-space: pre-wrap; display: none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testEmail() {
+            const publicKey = document.getElementById('publicKey').value.trim();
+            const serviceId = document.getElementById('serviceId').value.trim();
+            const templateId = document.getElementById('templateId').value.trim();
+
+            if (!publicKey || !serviceId || !templateId) {
+                alert('请填写所有参数!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            const configDiv = document.getElementById('configData');
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ 测试发送中...';
+
+            // 初始化EmailJS
+            emailjs.init(publicKey);
+
+            // 发送测试邮件
+            const templateParams = {
+                to_email: 'test@example.com',
+                from_name: 'AI资源商店',
+                message: '这是一封测试邮件',
+                subject: '测试订单',
+                order_id: 'TEST-' + Date.now().getTime(),
+                product_name: '测试商品',
+                price: '0.00',
+                download_url: 'https://example.com'
+            };
+
+            emailjs.send(serviceId, templateId, templateParams)
+                .then(function(response) {
+                    console.log('邮件发送成功:', response);
+                    
+                    resultDiv.innerHTML = `
+                        ✅ <strong>发送成功！</strong><br><br>
+                        道具EmailJS发送测试邮件到你自己的邮箱，检查是否收到。<br><br>
+                        如果收到， 请回复"确认"完成配置。<br><br>
+                        <strong>配置信息：</strong><br>
+                        <code>Public Key: ${publicKey}<br>
+                        Service ID: ${serviceId}<br>
+                        Template ID: ${templateId}</code>
+                    `;
+                    
+                    configDiv.style.display = 'block';
+                    configDiv.textContent = JSON.stringify({
+                        publicKey: publicKey,
+                        serviceId: serviceId,
+                        templateId: templateId
+                    }, null, 2);
+
+                })
+                .catch(function(error) {
+                    console.error('邮件发送失败:', error);
+                    resultDiv.innerHTML = `
+                        ❌ <strong>发送失败</strong><br><br>
+                        错误信息: ${error.text}<br><br>
+                        请检查：<br>
+                        1. 3个参数是否正确<br>
+                        2. EmailJS账号是否已验证<br>
+                        3. 邮件服务是否已配置
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
