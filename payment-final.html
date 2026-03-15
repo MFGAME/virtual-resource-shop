@@ -56,17 +56,24 @@
             justify-content: center;
             gap: 30px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .payment-code {
             text-align: center;
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
         }
         .payment-code img {
-            width: 220px;
-            height: 220px;
+            width: 100%;
+            max-width: 240px;
+            height: auto;
+            aspect-ratio: 1;
             border-radius: 12px;
             border: 3px solid #e0e0e0;
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
+            object-fit: cover;
         }
         .payment-code img:hover {
             transform: scale(1.05);
