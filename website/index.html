@@ -213,7 +213,7 @@
                         <div class="original-price">原价 ¥99</div>
                         <div class="current-price">¥29.9</div>
                     </div>
-                    <button class="buy-button" onclick="buyProduct('chatgpt-prompts')">
+                    <button class="buy-button" onclick="buyProduct('chatgpt')">
                         立即购买
                     </button>
                 </div>
@@ -239,7 +239,7 @@
                         <div class="original-price">原价 ¥129</div>
                         <div class="current-price">¥39.9</div>
                     </div>
-                    <button class="buy-button" onclick="buyProduct('midjourney-prompts')">
+                    <button class="buy-button" onclick="buyProduct('midjourney')">
                         立即购买
                     </button>
                 </div>
@@ -265,7 +265,7 @@
                         <div class="original-price">原价 ¥228</div>
                         <div class="current-price">¥59.9</div>
                     </div>
-                    <button class="buy-button" onclick="buyProduct('combo-package')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <button class="buy-button" onclick="buyProduct('combo')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                         立即购买
                     </button>
                 </div>
@@ -331,7 +331,7 @@
 
         function buyProduct(productId) {
             // 跳转到支付页面
-            window.location.href = `payment-final.html?product=${productId}`;
+            window.location.href = `../payment-final.html?product=${productId}`;
         }
 
         function closePaymentModal() {
