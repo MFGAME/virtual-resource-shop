@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>系统完整性测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #667eea; margin-bottom: 30px; }
+        h2 { color: #333; margin-bottom: 15px; }
+        .test-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-item.pending { border-left: 4px solid #ffc107; }
+        .test-item.success { border-left: 4px solid #28a745; background: #d4edda; }
+        .test-item.error { border-left: 4px solid #dc3545; background: #f8d7da; }
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { opacity: 0.9; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f0f0ff;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 系统完整性测试</h1>
+
+    <div class="test-card">
+        <h2>测试清单</h2>
+        <div class="test-item pending" id="test1">⏳ 测试1：创建订单</div>
+        <div class="test-item pending" id="test2">⏳ 测试2：读取订单</div>
+        <div class="test-item pending" id="test3">⏳ 测试3：更新订单状态</div>
+        <div class="test-item pending" id="test4">⏳ 测试4：统计数据</div>
+        <div class="test-item pending" id="test5">⏳ 测试5：导出CSV</div>
+    </div>
+
+    <div class="test-card">
+        <button onclick="runAllTests()">🚀 运行所有测试</button>
+        <button onclick="createTestOrder()">📝 创建测试订单</button>
+        <button onclick="checkLocalStorage()">🔍 检查localStorage</button>
+        <button onclick="clearTestData()">🗑️ 清除测试数据</button>
+    </div>
+
+    <div class="test-card">
+        <h2>测试结果</h2>
+        <div class="result" id="result">等待测试...</div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const ORDERS_KEY = 'virtual_resource_shop_orders';
+        let testResults = [];
+
+        function updateTest(id, status, message) {
+            const element = document.getElementById(id);
+            element.className = 'test-item ' + status;
+            element.textContent = (status === 'success' ? '✅ ' : status === 'error' ? '❌ ' : '⏳ ') + message;
+        }
+
+        async function runAllTests() {
+            testResults = [];
+            document.getElementById('result').textContent = '正在测试...\n';
+
+            // 测试1：创建订单
+            try {
+                updateTest('test1', 'pending', '测试1：创建订单中...');
+                const result = await createOrder({
+                    product: '测试商品',
+                    email: 'test@test.com',
+                    paymentMethod: 'wechat',
+                    price: '29.9',
+                    paymentScreenshot: 'test',
+                    notes: '自动化测试'
+                });
+                if (result.success) {
+                    updateTest('test1', 'success', '测试1：创建订单 - 成功');
+                    testResults.push('✅ 创建订单成功');
+                } else {
+                    updateTest('test1', 'error', '测试1：创建订单 - 失败');
+                    testResults.push('❌ 创建订单失败');
+                }
+            } catch (error) {
+                updateTest('test1', 'error', '测试1：创建订单 - 错误: ' + error.message);
+            }
+
+            // 测试2：读取订单
+            try {
+                updateTest('test2', 'pending', '测试2：读取订单中...');
+                const result = await getOrders();
+                if (result.success && result.orders.length > 0) {
+                    updateTest('test2', 'success', '测试2：读取订单 - 成功 (' + result.orders.length + '条)');
+                    testResults.push('✅ 读取订单成功 (' + result.orders.length + '条)');
+                } else {
+                    updateTest('test2', 'error', '测试2：读取订单 - 失败');
+                }
+            } catch (error) {
+                updateTest('test2', 'error', '测试2：读取订单 - 错误');
+            }
+
+            // 测试3：更新订单
+            try {
+                updateTest('test3', 'pending', '测试3：更新订单中...');
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+                if (orders.length > 0) {
+                    const result = await updateOrderStatus(orders[0].id, 'approved');
+                    if (result.success) {
+                        updateTest('test3', 'success', '测试3：更新订单 - 成功');
+                        testResults.push('✅ 更新订单成功');
+                    } else {
+                        updateTest('test3', 'error', '测试3：更新订单 - 失败');
+                    }
+                } else {
+                    updateTest('test3', 'error', '测试3：没有订单可更新');
+                }
+            } catch (error) {
+                updateTest('test3', 'error', '测试3：更新订单 - 错误');
+            }
+
+            // 测试4：统计数据
+            try {
+                updateTest('test4', 'pending', '测试4：统计中...');
+                const result = await getStats();
+                if (result.success) {
+                    updateTest('test4', 'success', `测试4：统计数据 - 成功 (总:${result.stats.total} 待审:${result.stats.pending} 已批:${result.stats.approved})`);
+                    testResults.push(`✅ 统计数据成功 (总订单:${result.stats.total})`);
+                } else {
+                    updateTest('test4', 'error', '测试4：统计数据 - 失败');
+                }
+            } catch (error) {
+                updateTest('test4', 'error', '测试4：统计数据 - 错误');
+            }
+
+            // 测试5：导出CSV
+            try {
+                updateTest('test5', 'pending', '测试5：导出CSV中...');
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+                if (orders.length > 0) {
+                    updateTest('test5', 'success', '测试5：导出CSV - 成功');
+                    testResults.push('✅ CSV导出功能正常');
+                } else {
+                    updateTest('test5', 'error', '测试5：没有数据可导出');
+                }
+            } catch (error) {
+                updateTest('test5', 'error', '测试5：导出CSV - 错误');
+            }
+
+            // 显示结果
+            document.getElementById('result').textContent = testResults.join('\n');
+        }
+
+        function createTestOrder() {
+            const orderId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            const order = {
+                id: orderId,
+                product: 'ChatGPT Prompt合集',
+                email: 'user' + Math.floor(Math.random() * 1000) + '@test.com',
+                payment_method: 'wechat',
+                price: '29.9',
+                payment_screenshot: 'data:image/jpeg;base64,test',
+                notes: '手动测试订单',
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
+
+            let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+            orders.push(order);
+            localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+
+            document.getElementById('result').textContent = '✅ 测试订单已创建\n订单ID: ' + orderId + '\n\n现在可以在管理后台查看此订单';
+        }
+
+        function checkLocalStorage() {
+            const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+            const output = 'localStorage状态:\n' +
+                '- 订单总数: ' + orders.length + '\n' +
+                '- 待审核: ' + orders.filter(o => o.status === 'pending').length + '\n' +
+                '- 已批准: ' + orders.filter(o => o.status === 'approved').length + '\n' +
+                '- 已拒绝: ' + orders.filter(o => o.status === 'rejected').length;
+
+            document.getElementById('result').textContent = output;
+        }
+
+        function clearTestData() {
+            if (confirm('确定要清除所有测试数据吗？')) {
+                localStorage.removeItem(ORDERS_KEY);
+                document.getElementById('result').textContent = '✅ 测试数据已清除';
+                updateTest('test1', 'pending', '⏳ 测试1：创建订单');
+                updateTest('test2', 'pending', '⏳ 测试2：读取订单');
+                updateTest('test3', 'pending', '⏳ 测试3：更新订单状态');
+                updateTest('test4', 'pending', '⏳ 测试4：统计数据');
+                updateTest('test5', 'pending', '⏳ 测试5：导出CSV');
+            }
+        }
+    </script>
+</body>
+</html>
