@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EmailJS配置向导</title>
+    <title>EmailJS配置向导 - AI资源商店</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -75,6 +75,7 @@
             border-radius: 10px;
             margin: 20px 0;
             color: #856404;
+            font-size: 14px;
         }
         .success {
             background: #d4edda;
@@ -88,25 +89,25 @@
 </head>
 <body>
     <div class="container">
-        <h1>📧 EmailJS自动邮件配置</h1>
+        <h1>📧 EmailJS配置向导</h1>
         <p style="margin-bottom: 20px; color: #666; text-align: center;">
-            只需1分钟，完成后系统将自动发送邮件！ 🎉
+            只需1分钟,完成后系统将自动发送邮件! 🎉
         </p>
 
         <div class="note">
-            <strong>⏱️ 錙费、免费！</strong><br>
+            <strong>⏱️ 完全免费!</strong><br>
             EmailJS免费额度：每月200封邮件<br>
-            宂多订单？完全够用！
+            即使订单量不大，完全够用！
         </div>
 
         <div class="step">
-            <h2>第1步：注册EmailJS账号</h2>
+            <h2>第1步:注册EmailJS账号</h2>
             <p>访问 <a href="https://www.emailjs.com/" target="_blank" style="color: #667eea; font-weight: bold;">EmailJS.com</a></p>
             <p>点击 "Sign Up Free" 注册（可以用Google账号快速登录）</p>
         </div>
 
         <div class="step">
-            <h2>第2步: 获取3个参数</h2>
+            <h2>第2步:获取3个参数</h2>
             
             <div style="margin-top: 20px;">
                 <label>① Public Key（用户ID）</label>
@@ -132,37 +133,51 @@
                 </p>
             </div>
 
-            <button onclick="testEmail()">📧 测试邮件发送</button>
+            <button onclick="saveConfig()">💾 保存配置</button>
+            <button onclick="testEmail()">🧪 测试发送</button>
 
-            <div id="result" class="success">
-                ✅ 配置成功！请复制以下信息发送给AI助手：
-            </div>
-
-            <div style="margin-top: 20px; background: #f0f0ff; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
-                <p id="configData" style="font-family: monospace; font-size: 12px; white-space: pre-wrap; display: none;"></p>
-            </div>
+            <div id="result" class="success"></div>
         </div>
     </div>
 
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <script>
-        function testEmail() {
+        function saveConfig() {
             const publicKey = document.getElementById('publicKey').value.trim();
             const serviceId = document.getElementById('serviceId').value.trim();
             const templateId = document.getElementById('templateId').value.trim();
 
             if (!publicKey || !serviceId || !templateId) {
-                alert('请填写所有参数!');
+                alert('请填写所有参数！');
+                return;
+            }
+
+            // 保存到localStorage
+            const config = { publicKey, serviceId, templateId };
+            localStorage.setItem('emailjs_config', JSON.stringify(config));
+
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result').innerHTML = `
+                ✅ <strong>配置已保存!</strong><br><br>
+                下次在管理后台批准订单时，系统会自动发送邮件。<br><br>
+                <a href="admin-final.html" style="color: #667eea; font-weight: bold;">前往管理后台</a>
+            `;
+        }
+
+        function testEmail() {
+            const config = JSON.parse(localStorage.getItem('emailjs_config'));
+            
+            if (!config) {
+                alert('请先保存配置！');
                 return;
             }
 
             const resultDiv = document.getElementById('result');
-            const configDiv = document.getElementById('configData');
-
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = '⏳ 测试发送中...';
 
             // 初始化EmailJS
-            emailjs.init(publicKey);
+            emailjs.init(config.publicKey);
 
             // 发送测试邮件
             const templateParams = {
@@ -176,27 +191,16 @@
                 download_url: 'https://example.com'
             };
 
-            emailjs.send(serviceId, templateId, templateParams)
+            emailjs.send(config.serviceId, config.templateId, templateParams)
                 .then(function(response) {
                     console.log('邮件发送成功:', response);
                     
                     resultDiv.innerHTML = `
-                        ✅ <strong>发送成功！</strong><br><br>
-                        道具EmailJS发送测试邮件到你自己的邮箱，检查是否收到。<br><br>
-                        如果收到， 请回复"确认"完成配置。<br><br>
-                        <strong>配置信息：</strong><br>
-                        <code>Public Key: ${publicKey}<br>
-                        Service ID: ${serviceId}<br>
-                        Template ID: ${templateId}</code>
+                        ✅ <strong>发送成功!</strong><br><br>
+                        请检查你的邮箱是否收到测试邮件。<br><br>
+                        如果收到，说明配置成功！<br><br>
+                        <a href="admin-final.html" style="color: #667eea; font-weight: bold;">前往管理后台</a>
                     `;
-                    
-                    configDiv.style.display = 'block';
-                    configDiv.textContent = JSON.stringify({
-                        publicKey: publicKey,
-                        serviceId: serviceId,
-                        templateId: templateId
-                    }, null, 2);
-
                 })
                 .catch(function(error) {
                     console.error('邮件发送失败:', error);
