@@ -169,14 +169,45 @@
             <button type="submit" class="submit-btn">✓ 已完成支付，发送下载链接</button>
         </form>
 
-        <div class="success-message" id="successMessage">
-            <h3 style="margin-bottom: 10px;">✅ 提交成功！</h3>
-            <p>下载链接将在5分钟内发送到你的邮箱</p>
-            <p style="margin-top: 10px;">如未收到，请检查垃圾邮件或联系客服</p>
+        <div class="success-message" id="successMessage" style="display: none;">
+            <h3 style="margin-bottom: 15px;">🎉 支付成功！</h3>
+            <div style="background: #d4edda; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <p style="font-size: 18px; margin-bottom: 15px;"><strong>📦 你的商品：</strong></p>
+                <p id="purchasedProduct" style="font-size: 16px; margin-bottom: 15px; color: #155724;"></p>
+                <a id="downloadLink" href="#" class="submit-btn" style="display: block; text-decoration: none; margin-top: 20px;">
+                    📥 立即下载
+                </a>
+            </div>
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                💾 链接已同时发送到你的邮箱，请保存以便后续下载<br>
+                📧 如未收到邮件，请检查垃圾邮件文件夹
+            </p>
         </div>
     </div>
 
     <script>
+        // 产品配置
+        const products = {
+            'chatgpt': {
+                name: 'ChatGPT Prompt合集',
+                price: '29.9',
+                downloadUrl: 'https://mfgame.github.io/virtual-resource-shop/download.html#chatgpt',
+                file: 'ChatGPT-Prompt-合集-v1.0.zip'
+            },
+            'midjourney': {
+                name: 'Midjourney Prompt合集',
+                price: '39.9',
+                downloadUrl: 'https://mfgame.github.io/virtual-resource-shop/download.html#midjourney',
+                file: 'Midjourney-Prompt-合集-v1.0.zip'
+            },
+            'combo': {
+                name: '超级组合套餐',
+                price: '59.9',
+                downloadUrl: 'https://mfgame.github.io/virtual-resource-shop/download.html',
+                file: 'ChatGPT+Midjourney合集'
+            }
+        };
+
         // 从URL参数获取商品信息
         const urlParams = new URLSearchParams(window.location.search);
         const product = urlParams.get('product');
@@ -188,12 +219,8 @@
         function updateProductInfo() {
             const select = document.getElementById('productSelect');
             const info = document.getElementById('productInfo');
-            const prices = {
-                'chatgpt': 'ChatGPT Prompt合集 - ¥29.9',
-                'midjourney': 'Midjourney Prompt合集 - ¥39.9',
-                'combo': '超级组合套餐 - ¥59.9'
-            };
-            info.textContent = prices[select.value];
+            const selectedProduct = products[select.value];
+            info.textContent = `${selectedProduct.name} - ¥${selectedProduct.price}`;
         }
 
         document.getElementById('productSelect').addEventListener('change', updateProductInfo);
@@ -203,29 +230,38 @@
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const product = document.getElementById('productSelect').value;
+            const productKey = document.getElementById('productSelect').value;
             const email = document.getElementById('email').value;
             const paymentMethod = document.getElementById('paymentMethod').value;
+            const product = products[productKey];
 
-            // 保存订单到本地存储
+            // 保存订单
             const order = {
-                product: product,
+                product: productKey,
+                productName: product.name,
+                price: product.price,
                 email: email,
                 paymentMethod: paymentMethod,
                 timestamp: new Date().toISOString(),
-                status: 'pending'
+                status: 'completed'
             };
 
+            // 保存到localStorage
             let orders = JSON.parse(localStorage.getItem('orders') || '[]');
             orders.push(order);
             localStorage.setItem('orders', JSON.stringify(orders));
 
-            // 显示成功消息
+            // 显示下载信息
+            document.getElementById('purchasedProduct').textContent = `${product.name} - ¥${product.price}`;
+            document.getElementById('downloadLink').href = product.downloadUrl;
+            
             document.getElementById('orderForm').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
 
-            // 这里可以调用后端API发送邮件
-            // await fetch('/api/send-email', { method: 'POST', body: JSON.stringify(order) });
+            // 自动跳转到下载页面（5秒后）
+            setTimeout(() => {
+                window.location.href = product.downloadUrl;
+            }, 3000);
         });
     </script>
 </body>
